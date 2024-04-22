@@ -39,10 +39,11 @@ $sourceFiles | % {
 
     if (!(Test-Path $destination)) {
         Copy-Item -Path $path -Destination $destination
-        $msg = "$path is copied to $destination"
-        Write-Output $msg
-        Write-Log $msg
+        $msg = "'$path' is copied to '$destination'"
     } else {
-        Write-Output "'$destination' already exists"
-    } 
+        $msg = "'$destination' already exists"
+    }
+
+    Write-Output $msg
+    Write-Log $msg
 }
