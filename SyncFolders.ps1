@@ -5,8 +5,21 @@ param (
     [parameter(Mandatory=$True)]
     [string]$sourceFolder,
     [parameter(Mandatory=$True)]
-    [string]$destinationFolder
+    [string]$destinationFolder,
+    [parameter(Mandatory=$False)]
+    [string]$logFile = "operations.log"
 )
+
+function Write-Log {
+    Param (
+        [parameter(Mandatory=$True)]
+        [string]$message
+    )
+
+    $dateTime = $(Get-Date).toString("dd.MM.yyyy HH:mm:ss")
+
+    Add-Content $logFile -Value "$dateTime $message"
+}
 
 if (-not (Test-Path $sourceFolder -PathType Container)) {
     Write-Error "Source folder '$sourceFolder' does not exist!"
@@ -25,10 +38,11 @@ $sourceFiles | % {
     $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder 
 
     if (!(Test-Path $destination)) {
-        Write-Output $destination
         Copy-Item -Path $path -Destination $destination
+        $msg = "$path is copied to $destination"
+        Write-Output $msg
+        Write-Log $msg
     } else {
         Write-Output "'$destination' already exists"
     } 
 }
-

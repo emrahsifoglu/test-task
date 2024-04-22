@@ -19,17 +19,23 @@ You can run the ```SyncFolders.ps1``` in a PowerShell session as shown below.
 .\SyncFolders.ps1 -sourceFolder "from" -destinationFolder "to"
 ```
 
+Default log file ```operations.log```, which you can override by setting the param: ```-logFile "new-operations.log"```
+
 ###### output
 :warning: Both source and destination folders must exist!
 ![connect](/images/fromm.png)
 
 ```ps
-/test-task/to/empty-folder
-/test-task/to/file
+/test-task/from/folder is copied to /test-task/to/folder
+/test-task/from/file is copied to /test-task/to/file
 ```
 
 :warning: Files that already exists in the destination folder wont be re-copied!
 ```ps 
-'/test-task/to/empty-folder' already exists
+'/test-task/to/folder' already exists
 '/test-task/to/file' already exists
 ```
+
+### Resources
+
+- [Writing Output to Log Files in PowerShell Script](https://woshub.com/write-output-log-files-powershell/)
