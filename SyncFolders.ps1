@@ -45,7 +45,10 @@ if (-not (Test-Path $destinationFolder -PathType Container)) {
     exit
 }
 
-$sourceFiles = Get-ChildItem -Path $sourceFolder -Recurse | Select-Object -Property @{n = 'RelativeName';e ={$_.FullName.Substring($SourcePath.Length)}}
+$sourceFiles = Get-ChildItem -Path $sourceFolder -Recurse | `
+                Select-Object -Property @{n = 'RelativeName';e ={$_.FullName.Substring($SourcePath.Length)}} `
+                , @{name="Info";e={((Get-Item $_.FullName) -is [System.IO.DirectoryInfo]) ? 'Directory' : 'File'}}
+
 $steps = $sourceFiles.Length
 $step = 0
 
@@ -53,21 +56,44 @@ Show-Progress -percentage 0 -status " "
 
 $sourceFiles | ForEach-Object {
     $path = $_.RelativeName
-    $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder 
+    $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder
+    $copy = $false
 
-    if (!(Test-Path $destination)) {
-        Copy-Item -Path $path -Destination $destination
-        $msg = "'$path' is copied to '$destination'"
+    if ($true -eq (Test-Path $destination) -And "File" -eq $_.Info) {
+        $sourceFileHash = Get-FileHash -Path $path -Algorithm MD5 | Select-Object Hash
+        $destinationFileHash = Get-FileHash -Path $destination -Algorithm MD5 | Select-Object Hash
+
+        if ($sourceFileHash.Hash -eq $destinationFileHash.Hash) {
+            Write-Log "File hashes match. '$destination' already exists in destination folder and will be skipped."
+        } else {
+            $copy = $true
+            Write-Log "File hashes don't match. '$path' will be copied to destination folder."
+        }
     } else {
-        $msg = "'$destination' already exists"
+        $copy = $true
+    }
+ 
+    if ($true -eq $copy) {
+        if (!(Test-Path $destination)) {
+            New-Item -ItemType $_.Info -Path $destination -Force | Out-Null
+            $msg = "'$path' is created in '$destination'"
+        } else {
+            if ("File" -eq $_.Info) {
+                Copy-Item -Path $path -Destination $destination -Recurse -Force
+                $msg = "'$path' is copied to '$destination'"
+            } else {
+                $msg = "'$path' is skipped"
+            }
+        }
+    } else {
+        $msg = "'$path' is skipped"
     }
 
     $step = $step + 1
     $percentage = ($step / $steps) * 100
 
     Write-Log $msg
-    Show-Progress -percentage $percentage -status $msg -sleepTime 250
-    
+    Show-Progress -percentage $percentage -status $msg -sleepTime 250   
 }
 
 Show-Progress -percentage 100 -status "Done"

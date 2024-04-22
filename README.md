@@ -35,3 +35,6 @@ Default log file ```operations.log```, which you can override by setting the par
 
 - [Writing Output to Log Files in PowerShell Script](https://woshub.com/write-output-log-files-powershell/)
 - [Display the progress](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/write-progress?view=powershell-7.4)
+- [PowerShell Basics: If -And & If -Or Statements](https://www.computerperformance.co.uk/powershell/if-and/)
+- [Determine if a path is to a file or a folder?](https://devblogs.microsoft.com/scripting/powertip-using-powershell-to-determine-if-path-is-to-file-or-folder/)
+- [Get the hash value for a file](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.4)
