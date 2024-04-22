@@ -35,6 +35,21 @@ function Show-Progress {
     Start-Sleep -Milliseconds $sleepTime
 }
 
+function Get-FileMD5 {
+    Param(
+        [string]$Path
+    )
+
+    $md5 = [System.Security.Cryptography.HashAlgorithm]::Create("MD5")
+    $IO = New-Object System.IO.FileStream($Path, [System.IO.FileMode]::Open)
+    $StringBuilder = New-Object System.Text.StringBuilder
+    $md5.ComputeHash($IO) | ForEach-Object { [void] $StringBuilder.Append($_.ToString("x2")) }
+    $hash = $StringBuilder.ToString() 
+    $IO.Dispose()
+
+    return $hash
+}
+
 if (-not (Test-Path $sourceFolder -PathType Container)) {
     Write-Error "Source folder '$sourceFolder' does not exist!"
     exit
@@ -47,7 +62,8 @@ if (-not (Test-Path $destinationFolder -PathType Container)) {
 
 $sourceFiles = Get-ChildItem -Path $sourceFolder -Recurse | `
                 Select-Object -Property @{n = 'RelativeName';e ={$_.FullName.Substring($SourcePath.Length)}} `
-                , @{name="Info";e={((Get-Item $_.FullName) -is [System.IO.DirectoryInfo]) ? 'Directory' : 'File'}}
+                ,@{name="Info";e={((Get-Item $_.FullName) -is [System.IO.DirectoryInfo]) ? 'Directory' : 'File'}} `
+                ,@{name="Hash";e={Get-FileMD5 $_.FullName}}
 
 $steps = $sourceFiles.Length
 $step = 0
@@ -60,10 +76,9 @@ $sourceFiles | ForEach-Object {
     $copy = $false
 
     if ($true -eq (Test-Path $destination) -And "File" -eq $_.Info) {
-        $sourceFileHash = Get-FileHash -Path $path -Algorithm MD5 | Select-Object Hash
-        $destinationFileHash = Get-FileHash -Path $destination -Algorithm MD5 | Select-Object Hash
+        $destinationFileHash = Get-FileMD5 -Path $destination
 
-        if ($sourceFileHash.Hash -eq $destinationFileHash.Hash) {
+        if ($_.Hash -eq $destinationFileHash) {
             Write-Log "File hashes match. '$destination' already exists in destination folder and will be skipped."
         } else {
             $copy = $true
