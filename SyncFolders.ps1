@@ -61,7 +61,7 @@ if (-not (Test-Path $destinationFolder -PathType Container)) {
 }
 
 $sourceFiles = Get-ChildItem -Path $sourceFolder -Recurse | `
-                Select-Object -Property @{n = 'RelativeName';e ={$_.FullName.Substring($SourcePath.Length)}} `
+                Select-Object -Property * `
                 ,@{name="Info";e={((Get-Item $_.FullName) -is [System.IO.DirectoryInfo]) ? 'Directory' : 'File'}} `
                 ,@{name="Hash";e={Get-FileMD5 $_.FullName}}
 
@@ -71,7 +71,7 @@ $step = 0
 Show-Progress -percentage 0 -status " "
 
 $sourceFiles | ForEach-Object {
-    $path = $_.RelativeName
+    $path = $_.FullName
     $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder
     $copy = $false
 
