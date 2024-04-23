@@ -65,8 +65,22 @@ $sourceFiles = Get-ChildItem -Path $sourceFolder -Recurse | `
                 ,@{name="Info";e={((Get-Item $_.FullName) -is [System.IO.DirectoryInfo]) ? 'Directory' : 'File'}} `
                 ,@{name="Hash";e={Get-FileMD5 $_.FullName}}
 
-$steps = $sourceFiles.Length
 $step = 0
+$steps = (Get-ChildItem $sourceFolder).Count
+
+if ($null -eq $sourceFiles) {
+    $msg = "There are no files in '$sourceFolder' folder."
+    Write-Log $msg
+    Write-Output $msg
+
+    Remove-Item "$destinationFolder/*" -Recurse -Force
+
+    $msg = "All existing files in '$destinationFolder' folder are deleted."
+    Write-Log $msg
+    Write-Output $msg
+
+    exit
+}
 
 Show-Progress -percentage 0 -status " "
 
@@ -106,3 +120,17 @@ $sourceFiles | ForEach-Object {
 }
 
 Show-Progress -percentage 100 -status "Done"
+
+Get-ChildItem -Path $destinationFolder -Recurse | ForEach-Object {
+    $path = $_.FullName
+    $source = $path -replace $destinationFolder.Replace('\','\\'), $sourceFolder
+    $delete = !(Test-Path $source)
+
+    if ($true -eq $delete) {
+        $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder
+        if ($true -eq (Test-Path $destination)) {
+            Remove-Item $destination -Force -Recurse
+            Write-Log "'$path' is deleted to '$destination'"   
+        }
+    }
+}

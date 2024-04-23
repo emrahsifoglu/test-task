@@ -39,3 +39,4 @@ Default log file ```operations.log```, which you can override by setting the par
 - [Determine if a path is to a file or a folder?](https://devblogs.microsoft.com/scripting/powertip-using-powershell-to-determine-if-path-is-to-file-or-folder/)
 - [Get the hash value for a file](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.4)
 - [Relative path PowerShell](https://learn.microsoft.com/en-us/answers/questions/648868/relative-path-powershell)
+- [Count items in a folder with PowerShell](https://stackoverflow.com/questions/14714284/powershell-count-items-in-a-folder-with-powershell)
