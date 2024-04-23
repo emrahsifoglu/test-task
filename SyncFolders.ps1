@@ -70,7 +70,7 @@ function Sync-Folders
                         ,@{name="Hash";e={Get-FileMD5 $_.FullName}}
         
         $step = 0
-        $steps = (Get-ChildItem $sourceFolder).Count
+        $steps = $sourceFiles.Length
 
         if ($null -eq $sourceFiles) {
             $msg = "There are no files in '$sourceFolder' folder."
@@ -84,8 +84,10 @@ function Sync-Folders
             Write-Output $msg
         
             exit
+        } elseif (0 -eq $sourceFiles.Length) {
+            $steps = (Get-ChildItem $sourceFolder).Count
         }
-        
+
         Show-Progress -percentage 0 -status " "
     }
     Process
