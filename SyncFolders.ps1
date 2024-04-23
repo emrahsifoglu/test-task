@@ -73,33 +73,27 @@ Show-Progress -percentage 0 -status " "
 $sourceFiles | ForEach-Object {
     $path = $_.FullName
     $destination = $path -replace $sourceFolder.Replace('\','\\'), $destinationFolder
-    $copy = $false
+    $create = !(Test-Path $destination) -And "Directory" -eq $_.Info
+    $copy = !(Test-Path $destination) -And "File" -eq $_.Info
 
     if ($true -eq (Test-Path $destination) -And "File" -eq $_.Info) {
         $destinationFileHash = Get-FileMD5 -Path $destination
 
-        if ($_.Hash -eq $destinationFileHash) {
-            Write-Log "File hashes match. '$destination' already exists in destination folder and will be skipped."
+        if ($destinationFileHash -eq $_.Hash) {
+            $copy = $false
+            Write-Log "File hashes match: '$destination' already exists in destination folder and will be skipped."
         } else {
             $copy = $true
-            Write-Log "File hashes don't match. '$path' will be copied to destination folder."
+            Write-Log "File hashes don't match: '$path' will be copied to destination folder."
         }
-    } else {
-        $copy = $true
     }
- 
+
     if ($true -eq $copy) {
-        if (!(Test-Path $destination)) {
-            New-Item -ItemType $_.Info -Path $destination -Force | Out-Null
-            $msg = "'$path' is created in '$destination'"
-        } else {
-            if ("File" -eq $_.Info) {
-                Copy-Item -Path $path -Destination $destination -Recurse -Force
-                $msg = "'$path' is copied to '$destination'"
-            } else {
-                $msg = "'$path' is skipped"
-            }
-        }
+        Copy-Item -Path $path -Destination $destination -Recurse -Force
+        $msg = "'$path' is copied to '$destination'"
+    } elseif ($true -eq $create) {
+        New-Item -ItemType $_.Info -Path $destination -Force | Out-Null
+        $msg = "'$path' is created in '$destination'"
     } else {
         $msg = "'$path' is skipped"
     }
