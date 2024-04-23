@@ -16,10 +16,13 @@ You can run the ```SyncFolders.ps1``` in a PowerShell session as shown below.
 
 ###### run
 ```ps
-.\SyncFolders.ps1 -sourceFolder "from" -destinationFolder "to"
+.\SyncFolders.ps1
+cmdlet Sync-Folders at command pipeline position 1
+Supply values for the following parameters:
+sourceFolder: from
+destinationFolder: to
+logFile: operations.log
 ```
-
-Default log file ```operations.log```, which you can override by setting the param: ```-logFile "new-operations.log"```
 
 ###### output
 ![connect](/images/step-zero.png)
@@ -40,3 +43,4 @@ Default log file ```operations.log```, which you can override by setting the par
 - [Get the hash value for a file](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-7.4)
 - [Relative path PowerShell](https://learn.microsoft.com/en-us/answers/questions/648868/relative-path-powershell)
 - [Count items in a folder with PowerShell](https://stackoverflow.com/questions/14714284/powershell-count-items-in-a-folder-with-powershell)
+- [Begin to Process to End](https://www.sapien.com/blog/2019/05/13/advanced-powershell-functions-begin-to-process-to-end/)
